@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  
+}
+
+// Modelo principal para la solicitud (Ticket)
+model Solicitud {
+  id               Int               @id @default(autoincrement())
+  numeroTicket     String            @unique // Ej: TKN-1001
+  codigoUpn        String
+  nombresApellidos String
+  curso            String
+  docente          String
+  estadoActual     String            @default("RECIBIDO") 
+  // Estados: RECIBIDO, EN_REVISION, OBSERVADO, EN_COLA, EN_IMPRESION, IMPRESO
+  
+  fechaCreacion    DateTime          @default(now())
+  fechaActualizacion DateTime        @updatedAt
+
+  archivos         ArchivoSTL[]
+  historial        HistorialEstado[]
+}
+
+// Modelo para guardar los archivos .stl asociados a un ticket
+model ArchivoSTL {
+  id             Int       @id @default(autoincrement())
+  solicitudId    Int
+  solicitud      Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+  driveFileId    String    // ID que devuelve Google Drive
+  nombreOriginal String    // Ej: pieza1_mecanismo.stl
+  urlWebView     String    // Link directo de Drive
+  fechaSubida    DateTime  @default(now())
+}
+
+// Modelo para rastrear comentarios y cambios de estado
+model HistorialEstado {
+  id          Int       @id @default(autoincrement())
+  solicitudId Int
+  solicitud   Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+  estado      String
+  comentario  String?
+  creadoPor   String    @default("Sistema") // "Alumno" o "Admin"
+  fecha       DateTime  @default(now())
+}

@@ -147,3 +147,9 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Google cred.
+node_modules/
+.env
+google-credentials.json
+*.db
